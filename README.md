@@ -51,6 +51,21 @@ followed by a command to see completions and suggestions.
 - The command list is loaded once per session and cached.
 - History is reloaded with a short (3s) TTL so recent commands show up.
 
+## What this extension reads and runs (transparency)
+
+This extension runs entirely locally. It never opens a network connection and
+never transmits any data — there are no `fetch`, `http`, `socket`, or
+`child_process` calls.
+
+| Action | Detail | Notes |
+|--------|--------|-------|
+| Reads `~/.zsh_history` (or `$HISTFILE`) | Powers history suggestions | Local only; shown solely in your own editor, never sent anywhere |
+| Runs `zsh -i -c 'print -rl ...'` | Loads your `~/.zshrc` / oh-my-zsh to list commands, aliases and functions | Executes your own shell config; the command is fixed and does not interpolate your typed input |
+| `readdir` / `stat` in the working directory | File / path completion | Local only |
+
+The call to `zsh` uses **fixed arguments** and never concatenates the text you
+type, so there is no shell-injection surface.
+
 ## License
 
 MIT
