@@ -1,0 +1,28 @@
+{
+  "name": "pi-zsh-bang-complete",
+  "version": "0.1.0",
+  "description": "Autocompletion and zsh-autosuggestions-style history for pi's `!` / `!!` bash command input, powered by your zsh + oh-my-zsh config.",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "zsh",
+    "oh-my-zsh",
+    "autocomplete",
+    "autosuggestions"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "pi": {
+    "extensions": [
+      "./extensions"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*"
+  },
+  "files": [
+    "extensions",
+    "README.md"
+  ]
+}
