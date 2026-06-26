@@ -1,6 +1,6 @@
 {
   "name": "pi-zsh-bang-complete",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Autocompletion and zsh-autosuggestions-style history for pi's `!` / `!!` bash command input, powered by your zsh + oh-my-zsh config.",
   "keywords": [
     "pi-package",

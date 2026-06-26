@@ -210,9 +210,11 @@ function createBangProvider(
 
 		applyCompletion(lines, cursorLine, cursorCol, item, prefix) {
 			const line = lines[cursorLine] ?? "";
-			// Replace the `prefix` immediately before the cursor with item.value.
+			// Only customize insertion for bang lines. Everything else (slash
+			// commands like /quit, @paths, ...) must use the built-in behavior so
+			// we don't append a trailing space that breaks exact-match commands.
 			const start = cursorCol - prefix.length;
-			if (start < 0 || line.slice(start, cursorCol) !== prefix) {
+			if (!line.startsWith("!") || start < 0 || line.slice(start, cursorCol) !== prefix) {
 				return current.applyCompletion(lines, cursorLine, cursorCol, item, prefix);
 			}
 
