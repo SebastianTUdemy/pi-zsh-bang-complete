@@ -58,9 +58,14 @@ function parseBang(line: string, cursorCol: number): BangContext | null {
 /** Load command names known to an interactive zsh (loads ~/.zshrc + oh-my-zsh). */
 async function loadZshCommands(pi: ExtensionAPI, cwd: string): Promise<string[]> {
 	try {
+		// `+m` disables job control (monitor mode). Without it an interactive
+		// zsh tries to take ownership of the controlling terminal via
+		// tcsetpgrp, which raises SIGTTOU/SIGTTIN and suspends pi itself.
+		// `-i` is still needed so ~/.zshrc (and oh-my-zsh) loads fully.
 		const result = await pi.exec(
 			"zsh",
 			[
+				"+m",
 				"-i",
 				"-c",
 				"print -rl -- ${(ko)commands} ${(ko)aliases} ${(ko)galiases} ${(ko)functions} ${(ko)builtins} ${(ko)reswords} 2>/dev/null",
@@ -210,13 +215,26 @@ function createBangProvider(
 			if (start < 0 || line.slice(start, cursorCol) !== prefix) {
 				return current.applyCompletion(lines, cursorLine, cursorCol, item, prefix);
 			}
-			const newLine = line.slice(0, start) + item.value + line.slice(cursorCol);
+
+			const rest = line.slice(cursorCol);
+			// Append a trailing space after completed commands, files and history
+			// entries so the line stays a runnable bang command and the cursor is
+			// ready for arguments. Directories keep no space so the path can grow.
+			const isDir = item.value.endsWith("/");
+			const trailing = !isDir && !rest.startsWith(" ") ? " " : "";
+			// When the command is glued directly to the bang operator (e.g. "!gst"),
+			// insert a leading space so it reads "! gst".
+			const before = line.slice(0, start);
+			const leading = /^!{1,2}$/.test(before) ? " " : "";
+			const insertion = `${leading}${item.value}${trailing}`;
+
+			const newLine = before + insertion + rest;
 			const newLines = [...lines];
 			newLines[cursorLine] = newLine;
 			return {
 				lines: newLines,
 				cursorLine,
-				cursorCol: start + item.value.length,
+				cursorCol: start + insertion.length,
 			};
 		},
 
